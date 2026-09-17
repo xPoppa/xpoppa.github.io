@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>75 HARD · daily tracker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #0b0f14;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #e8edf2;
+            display: flex;
+            justify-content: center;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+
+        .app {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            margin-bottom: 0.25rem;
+            color: #ffffff;
+        }
+
+        h1 span {
+            background: linear-gradient(135deg, #f97316, #ef4444);
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 0.2rem 0.9rem;
+            border-radius: 40px;
+            color: #0b0f14;
+            letter-spacing: 0.02em;
+        }
+
+        .subhead {
+            color: #9aa7b5;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+            border-left: 3px solid #f97316;
+            padding-left: 1rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            background: #151e27;
+            border-radius: 2rem;
+            padding: 1rem 1.75rem;
+            margin-bottom: 2.5rem;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid #2a3746;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #8b9aab;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #f0f4fa;
+            line-height: 1.2;
+        }
+
+        .progress-ring {
+            width: 52px;
+            height: 52px;
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 6;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.3s ease;
+        }
+
+        .progress-ring .bg {
+            stroke: #2a3746;
+        }
+
+        .progress-ring .fg {
+            stroke: #f97316;
+            stroke-dasharray: 0 150;
+            stroke-dashoffset: 0;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.8fr;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 800px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            .stats-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* left panel — add entry */
+        .card {
+            background: #131c25;
+            border-radius: 2rem;
+            padding: 1.75rem 1.5rem;
+            border: 1px solid #26313e;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #cfddee;
+        }
+
+        .card h2 i {
+            font-style: normal;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.3rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            font-weight: 500;
+            color: #96a9bb;
+            margin-bottom: 0.4rem;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            background: #0d141c;
+            border: 1px solid #2f3e4e;
+            color: #edf2f9;
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .check-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin: 1rem 0 0.5rem;
+        }
+
+        .check-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1d2936;
+            padding: 0.4rem 1rem 0.4rem 0.8rem;
+            border-radius: 3rem;
+            border: 1px solid #2e3f50;
+            transition: background 0.15s;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .check-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #f97316;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .check-item:hover {
+            background: #253544;
+        }
+
+        .btn {
+            background: #f97316;
+            color: #0b0f14;
+            font-weight: 600;
+            border: none;
+            padding: 0.9rem 1.5rem;
+            border-radius: 2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            margin-top: 1rem;
+            letter-spacing: 0.01em;
+        }
+
+        .btn:hover {
+            background: #fb8c3e;
+            transform: scale(1.01);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #3e4e5e;
+            color: #b6c8db;
+            margin-top: 0.5rem;
+        }
+
+        .btn-outline:hover {
+            background: #1f2d3a;
+            border-color: #5f7a94;
+            color: #e8edf2;
+        }
+
+        .day-badge {
+            display: inline-block;
+            background: #26313e;
+            padding: 0.2rem 0.8rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #b9cadc;
+            margin-bottom: 1rem;
+        }
+
+        /* right side — grid & log */
+        .grid-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            gap: 6px;
+            background: #0f171f;
+            padding: 1rem;
+            border-radius: 1.5rem;
+            border: 1px solid #26313e;
+        }
+
+        .day-cell {
+            aspect-ratio: 1;
+            border-radius: 8px;
+            background: #1b2530;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: #5a6f84;
+            transition: all 0.15s;
+            border: 1px solid #2b3846;
+            cursor: default;
+        }
+
+        .day-cell.completed {
+            background: #f97316;
+            border-color: #f97316;
+            color: #0b0f14;
+            font-weight: 700;
+            box-shadow: 0 0 12px rgba(249, 115, 22, 0.5);
+        }
+
+        .day-cell.completed:hover {
+            background: #fb8c3e;
+        }
+
+        .day-cell.current {
+            border: 2px solid #f97316;
+            color: #f97316;
+            font-weight: 700;
+        }
+
+        .log-list {
+            background: #131c25;
+            border-radius: 2rem;
+            padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+            border: 1px solid #26313e;
+            max-height: 340px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #2f3e4e #131c25;
+        }
+
+        .log-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .log-list::-webkit-scrollbar-track {
+            background: #131c25;
+            border-radius: 10px;
+        }
+
+        .log-list::-webkit-scrollbar-thumb {
+            background: #2f3e4e;
+            border-radius: 10px;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid #202b36;
+            transition: background 0.1s;
+            font-size: 0.95rem;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry:hover {
+            background: #19232e;
+            border-radius: 1rem;
+        }
+
+        .log-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .log-day {
+            font-weight: 600;
+            color: #eef3fa;
+        }
+
+        .log-date {
+            font-size: 0.75rem;
+            color: #8a9eb1;
+        }
+
+        .log-tasks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .task-badge {
+            font-size: 0.68rem;
+            padding: 0.15rem 0.55rem;
+            border-radius: 30px;
+            background: #1d2c39;
+            color: #b7ccdf;
+            border: 1px solid #31485b;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+
+        .task-badge.done {
+            background: #1d3a2a;
+            border-color: #2d6a4a;
+            color: #b1e6c9;
+        }
+
+        .log-note {
+            font-size: 0.8rem;
+            color: #a6b9ca;
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-style: italic;
+        }
+
+        .empty-log {
+            padding: 2rem;
+            text-align: center;
+            color: #6e8499;
+            font-size: 0.95rem;
+        }
+
+        .footer-hint {
+            margin-top: 1.5rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #556d82;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #5f7a94;
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 30px;
+            transition: all 0.15s;
+        }
+
+        .delete-btn:hover {
+            color: #ef4444;
+            background: #2a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <h1>
+            🔥 75 HARD
+            <span>tracker</span>
+        </h1>
+        <div class="subhead">
+            5 daily tasks · 75 days · no compromise
+        </div>
+
+        <!-- stats bar -->
+        <div class="stats-bar" id="statsBar">
+            <div class="stat-item">
+                <span class="stat-label">Completed</span>
+                <span class="stat-value" id="completedCount">0</span>
+                <span style="color:#6b7f94; font-weight:500;">/ 75</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Current day</span>
+                <span class="stat-value" id="currentDayDisplay">1</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Progress</span>
+                <svg class="progress-ring" width="52" height="52" viewBox="0 0 52 52">
+                    <circle class="bg" cx="26" cy="26" r="22"></circle>
+                    <circle class="fg" id="progressCircle" cx="26" cy="26" r="22" stroke-dasharray="0 138.2"></circle>
+                </svg>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- LEFT: add entry -->
+            <div class="card">
+                <h2><i>📋</i> Log today</h2>
+                <div class="day-badge" id="dayBadge">Day 1</div>
+
+                <div class="input-group">
+                    <label for="entryDate">Date</label>
+                    <input type="date" id="entryDate" />
+                </div>
+
+                <div class="check-group">
+                    <label class="check-item">
+                        <input type="checkbox" id="task1" checked /> 💪 Workout
+                    </label>
+                    <label class="check-item">
+                        <input type="checkbox" id="task2" checked /> 🥗 Diet
+                    </label>
+                    <label class="check-item">
+                        <input type="checkbox" id="task3" checked /> 💧 Water
+                    </label>
+                    <label class="check-item">
+                        <input type="checkbox" id="task4" checked /> 📖 Read
+                    </label>
+                    <label class="check-item">
+                        <input type="checkbox" id="task5" checked /> 🚶 Progress pic
+                    </label>
+                </div>
+
+                <div class="input-group" style="margin-top:1.2rem;">
+                    <label for="noteInput">Note (optional)</label>
+                    <textarea id="noteInput" placeholder="How did it go? ..."></textarea>
+                </div>
+
+                <button class="btn" id="addEntryBtn">
+                    ➕ Log this day
+                </button>
+                <button class="btn btn-outline" id="resetBtn">
+                    ⟲ Reset all data
+                </button>
+            </div>
+
+            <!-- RIGHT: grid + log -->
+            <div class="grid-section">
+                <!-- 75-day grid -->
+                <div class="days-grid" id="daysGrid"></div>
+
+                <!-- log history -->
+                <div class="log-list" id="logList">
+                    <div class="empty-log">No entries yet. Start day 1 →</div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-hint">
+            ⚡ check all 5 tasks to complete a day. each day is logged independently.
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- storage keys ----------
+            const STORAGE_KEY = '75hard_tracker_v1';
+
+            // ---------- state ----------
+            let entries = [];          // array of { day, date, tasks: [bool x5], note }
+
+            // ---------- dom elements ----------
+            const entryDate = document.getElementById('entryDate');
+            const dayBadge = document.getElementById('dayBadge');
+            const task1 = document.getElementById('task1');
+            const task2 = document.getElementById('task2');
+            const task3 = document.getElementById('task3');
+            const task4 = document.getElementById('task4');
+            const task5 = document.getElementById('task5');
+            const noteInput = document.getElementById('noteInput');
+            const addEntryBtn = document.getElementById('addEntryBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const daysGrid = document.getElementById('daysGrid');
+            const logList = document.getElementById('logList');
+            const completedCountSpan = document.getElementById('completedCount');
+            const currentDayDisplay = document.getElementById('currentDayDisplay');
+            const progressCircle = document.getElementById('progressCircle');
+
+            // ---------- helpers ----------
+            function formatDate(date) {
+                const y = date.getFullYear();
+                const m = String(date.getMonth() + 1).padStart(2, '0');
+                const d = String(date.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
+            }
+
+            function getTodayStr() {
+                return formatDate(new Date());
+            }
+
+            // find the next day number (1-75) based on existing entries
+            function getNextDayNumber() {
+                if (!entries.length) return 1;
+                const maxDay = Math.max(...entries.map(e => e.day), 0);
+                return Math.min(maxDay + 1, 75);
+            }
+
+            // compute current day (first day without a completed entry, or next day)
+            function computeCurrentDay() {
+                for (let d = 1; d <= 75; d++) {
+                    const entry = entries.find(e => e.day === d);
+                    if (!entry || !entry.tasks.every(t => t === true)) {
+                        return d;
+                    }
+                }
+                return 75; // all done -> day 75 as "current"
+            }
+
+            // count fully completed days (all 5 tasks true)
+            function countCompletedDays() {
+                return entries.filter(e => e.tasks.every(t => t === true)).length;
+            }
+
+            // update UI (stats, grid, log, form)
+            function renderAll() {
+                renderGrid();
+                renderLog();
+                updateStats();
+                updateFormState();
+            }
+
+            // ---------- grid ----------
+            function renderGrid() {
+                daysGrid.innerHTML = '';
+                const currentDay = computeCurrentDay();
+
+                for (let d = 1; d <= 75; d++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'day-cell';
+                    cell.textContent = d;
+
+                    const entry = entries.find(e => e.day === d);
+                    const isCompleted = entry && entry.tasks.every(t => t === true);
+
+                    if (isCompleted) {
+                        cell.classList.add('completed');
+                    }
+                    if (d === currentDay && !isCompleted) {
+                        cell.classList.add('current');
+                    }
+
+                    // tooltip with details
+                    if (entry) {
+                        const dateObj = new Date(entry.date + 'T12:00:00');
+                        const dateStr = dateObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                        const tasksDone = entry.tasks.filter(Boolean).length;
+                        cell.title = `Day ${d} · ${dateStr} · ${tasksDone}/5 tasks${entry.note ? ' · ' + entry.note : ''}`;
+                    } else {
+                        cell.title = `Day ${d} · not logged`;
+                    }
+
+                    daysGrid.appendChild(cell);
+                }
+            }
+
+            // ---------- log ----------
+            function renderLog() {
+                if (!entries.length) {
+                    logList.innerHTML = '<div class="empty-log">No entries yet. Start day 1 →</div>';
+                    return;
+                }
+
+                // sort descending by day
+                const sorted = [...entries].sort((a, b) => b.day - a.day);
+
+                logList.innerHTML = sorted.map(entry => {
+                    const dateObj = new Date(entry.date + 'T12:00:00');
+                    const dateFormatted = dateObj.toLocaleDateString(undefined, {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+
+                    const taskNames = ['💪 Workout', '🥗 Diet', '💧 Water', '📖 Read', '🚶 Progress pic'];
+                    const taskBadges = entry.tasks.map((done, idx) => {
+                        return `<span class="task-badge ${done ? 'done' : ''}">${taskNames[idx]} ${done ? '✓' : '✗'}</span>`;
+                    }).join('');
+
+                    const noteHtml = entry.note ? `<div class="log-note" title="${entry.note.replace(/"/g, '&quot;')}">📝 ${entry.note}</div>` : '';
+
+                    return `
+                        <div class="log-entry" data-day="${entry.day}">
+                            <div class="log-left">
+                                <div class="log-day">Day ${entry.day}</div>
+                                <div class="log-date">${dateFormatted}</div>
+                                <div class="log-tasks">${taskBadges}</div>
+                                ${noteHtml}
+                            </div>
+                            <button class="delete-btn" data-day="${entry.day}" title="Delete entry">✕</button>
+                        </div>
+                    `;
+                }).join('');
+
+                // attach delete listeners
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const day = parseInt(btn.dataset.day, 10);
+                        deleteEntry(day);
+                    });
+                });
+            }
+
+            // ---------- update stats ----------
+            function updateStats() {
+                const completed = countCompletedDays();
+                completedCountSpan.textContent = completed;
+
+                const currentDay = computeCurrentDay();
+                currentDayDisplay.textContent = currentDay;
+
+                // progress circle (max 75)
+                const circumference = 2 * Math.PI * 22; // r=22
+                const progress = completed / 75;
+                const dashArray = progress * circumference;
+                progressCircle.setAttribute('stroke-dasharray', `${dashArray} ${circumference}`);
+            }
+
+            // ---------- update form (badge, next day number) ----------
+            function updateFormState() {
+                const nextDay = getNextDayNumber();
+                dayBadge.textContent = `Day ${nextDay}`;
+
+                // if date field is empty, set today
+                if (!entryDate.value) {
+                    entryDate.value = getTodayStr();
+                }
+
+                // prefill checkboxes: all checked by default (fresh start)
+                // but we don't override if user is mid-typing, so we only set when form is "untouched"
+                // we'll do a soft reset: only if no entry for that day exists, keep them checked.
+                // not needed – we manage on add.
+            }
+
+            // ---------- add entry ----------
+            function addEntry() {
+                const dateValue = entryDate.value;
+                if (!dateValue) {
+                    alert('Please select a date.');
+                    return;
+                }
+
+                // determine day number
+                let dayNumber = getNextDayNumber();
+
+                // check if an entry already exists for this date? optional – we allow multiple days same date? 75hard usually 1 per day.
+                // but we can also check if there is already an entry with the same date → prevent duplicates.
+                const existingByDate = entries.find(e => e.date === dateValue);
+                if (existingByDate) {
+                    alert(`An entry already exists for ${dateValue} (Day ${existingByDate.day}). Please delete it first or choose another date.`);
+                    return;
+                }
+
+                // Also if dayNumber > 75, show message
+                if (dayNumber > 75) {
+                    alert('All 75 days are already logged! You can reset or delete entries to continue.');
+                    return;
+                }
+
+                const tasks = [
+                    task1.checked,
+                    task2.checked,
+                    task3.checked,
+                    task4.checked,
+                    task5.checked
+                ];
+
+                const note = noteInput.value.trim();
+
+                entries.push({
+                    day: dayNumber,
+                    date: dateValue,
+                    tasks: tasks,
+                    note: note
+                });
+
+                // sort by day
+                entries.sort((a, b) => a.day - b.day);
+
+                saveToLocal();
+                renderAll();
+
+                // reset form for next entry
+                // next day is now dayNumber+1, date prefill today
+                const nextDate = new Date(dateValue + 'T12:00:00');
+                nextDate.setDate(nextDate.getDate() + 1);
+                entryDate.value = formatDate(nextDate);
+
+                // check all tasks again for new entry
+                task1.checked = true;
+                task2.checked = true;
+                task3.checked = true;
+                task4.checked = true;
+                task5.checked = true;
+                noteInput.value = '';
+
+                // update day badge after state change
+                const newNextDay = getNextDayNumber();
+                dayBadge.textContent = `Day ${newNextDay}`;
+            }
+
+            // ---------- delete entry ----------
+            function deleteEntry(day) {
+                if (!confirm(`Delete entry for Day ${day}?`)) return;
+
+                entries = entries.filter(e => e.day !== day);
+
+                // renumber remaining days? No — 75 hard days are sequential but if you delete you might want to keep gaps.
+                // We'll keep original day numbers, but that may cause "gaps". However the grid and log will reflect missing days.
+                // This is intuitive: you can delete a day and it becomes unlogged.
+                // But then the "next day number" will fill the first gap if you add a new entry? 
+                // We are using getNextDayNumber based on max+1, so if you delete day 5, the next day is still max+1.
+                // To fill gaps, we could recalc based on the highest +1, but that's fine.
+                // However for consistency, I'll re-number? No, better to keep as is: the user can delete and re-add.
+                // But if they delete day 5 and then add, it will get day max+1 = 6, leaving 5 empty.
+                // That's acceptable.
+                // Alternatively, we can renumber to keep contiguous. I'll do a simple renumber: sort and reassign day 1..N
+                // That's cleaner for a 75-day challenge. Let's renumber after deletion.
+                // But if they delete a middle day, all subsequent days shift down, which might be confusing.
+                // However the UI shows day numbers, and if you delete day 5, days 6..N become 5..N-1. That's typical.
+                // I'll implement renumbering to keep contiguous.
+                // But note: date stays same. That's fine.
+                // Let's renumber:
+                const sorted = [...entries].sort((a, b) => a.day - b.day);
+                const renumbered = sorted.map((entry, idx) => ({
+                    ...entry,
+                    day: idx + 1
+                }));
+                entries = renumbered;
+
+                saveToLocal();
+                renderAll();
+
+                // update badge
+                const newNextDay = getNextDayNumber();
+                dayBadge.textContent = `Day ${newNextDay}`;
+            }
+
+            // ---------- reset all ----------
+            function resetAll() {
+                if (!confirm('Delete ALL entries? This cannot be undone.')) return;
+                entries = [];
+                saveToLocal();
+                renderAll();
+
+                // reset date to today
+                entryDate.value = getTodayStr();
+                task1.checked = true;
+                task2.checked = true;
+                task3.checked = true;
+                task4.checked = true;
+                task5.checked = true;
+                noteInput.value = '';
+                dayBadge.textContent = 'Day 1';
+            }
+
+            // ---------- local storage ----------
+            function saveToLocal() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+                } catch (e) {
+                    console.warn('Could not save to localStorage', e);
+                }
+            }
+
+            function loadFromLocal() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    if (stored) {
+                        entries = JSON.parse(stored);
+                        // ensure tasks array length 5
+                        entries = entries.map(e => ({
+                            ...e,
+                            tasks: e.tasks && e.tasks.length === 5 ? e.tasks : [false, false, false, false, false]
+                        }));
+                    }
+                } catch (e) {
+                    console.warn('Could not load from localStorage', e);
+                    entries = [];
+                }
+            }
+
+            // ---------- initialise ----------
+            function init() {
+                loadFromLocal();
+
+                // Set date to today if not set
+                entryDate.value = getTodayStr();
+
+                // default day badge
+                const nextDay = getNextDayNumber();
+                dayBadge.textContent = `Day ${nextDay}`;
+
+                // event listeners
+                addEntryBtn.addEventListener('click', addEntry);
+                resetBtn.addEventListener('click', resetAll);
+
+                // initial render
+                renderAll();
+            }
+
+            // start
+            init();
+        })();
+    </script>
+</body>
+</html>
